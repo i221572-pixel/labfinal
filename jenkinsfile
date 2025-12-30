@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         VENV = 'venv'
+        BUILD_NAME = 'flask-app-build'
     }
 
     stages {
@@ -32,17 +33,27 @@ pipeline {
                 '''
             }
         }
+
+        stage('Build') {
+            steps {
+                sh '''
+                mkdir -p build
+                zip -r build/${BUILD_NAME}.zip app.py requirements.txt
+                '''
+            }
+        }
     }
 
     post {
         always {
             junit 'test-results.xml'
+            archiveArtifacts artifacts: 'build/*.zip', fingerprint: true
         }
         success {
-            echo 'All unit tests passed'
+            echo 'Build and tests completed successfully'
         }
         failure {
-            echo 'Unit tests failed'
+            echo 'Pipeline failed'
         }
     }
 }
