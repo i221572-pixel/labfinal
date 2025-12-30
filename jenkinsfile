@@ -9,11 +9,11 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/your-project.git'
+                checkout scm
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
                 python3 -m venv $VENV
@@ -24,34 +24,25 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Unit Tests') {
             steps {
                 sh '''
                 . $VENV/bin/activate
-                pytest
+                pytest --junitxml=reports/test-results.xml
                 '''
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo 'Build stage completed'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploy stage completed'
             }
         }
     }
 
     post {
+        always {
+            junit 'reports/test-results.xml'
+        }
         success {
-            echo 'Pipeline executed successfully'
+            echo 'Flask app tests passed'
         }
         failure {
-            echo 'Pipeline failed'
+            echo 'Flask app tests failed'
         }
     }
 }
