@@ -28,7 +28,7 @@ pipeline {
             steps {
                 sh '''
                 . $VENV/bin/activate
-                pytest --junitxml=reports/test-results.xml
+                pytest test_app.py --junitxml=test-results.xml
                 '''
             }
         }
@@ -36,13 +36,13 @@ pipeline {
 
     post {
         always {
-            junit 'reports/test-results.xml'
+            junit 'test-results.xml'
         }
         success {
-            echo 'Flask app tests passed'
+            echo 'All unit tests passed'
         }
         failure {
-            echo 'Flask app tests failed'
+            echo 'Unit tests failed'
         }
     }
 }
